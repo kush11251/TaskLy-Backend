@@ -101,7 +101,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // READ (ALL USERS): Get a list of all registered users
-app.get('/api/users', authenticateToken, async (req, res) => {
+app.get('/api/users', async (req, res) => {
   try {
     // .select('-passcode') ensures we don't leak password hashes
     const users = await User.find().select('-passcode');
