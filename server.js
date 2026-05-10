@@ -112,7 +112,7 @@ app.get('/api/users', async (req, res) => {
 });
 
 // DELETE USER: Remove a user and their associated tasks
-app.delete('/api/users/:id', authenticateToken, async (req, res) => {
+app.delete('/api/users/:id', async (req, res) => {
   try {
     const userIdToDelete = req.params.id;
 
