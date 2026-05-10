@@ -100,6 +100,41 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// READ (ALL USERS): Get a list of all registered users
+app.get('/api/users', authenticateToken, async (req, res) => {
+  try {
+    // .select('-passcode') ensures we don't leak password hashes
+    const users = await User.find().select('-passcode');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching users', error: error.message });
+  }
+});
+
+// DELETE USER: Remove a user and their associated tasks
+app.delete('/api/users/:id', authenticateToken, async (req, res) => {
+  try {
+    const userIdToDelete = req.params.id;
+
+    // 1. Delete the user
+    const deletedUser = await User.findByIdAndDelete(userIdToDelete);
+    
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // 2. Cascade delete: Remove all tasks belonging to this user
+    await Task.deleteMany({ userId: userIdToDelete });
+
+    res.json({ 
+      message: 'User and all associated tasks deleted successfully', 
+      userId: userIdToDelete 
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting user', error: error.message });
+  }
+});
+
 // ==========================================
 // 5. TASK CRUD ROUTES (Protected)
 // ==========================================
